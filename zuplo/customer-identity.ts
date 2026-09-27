@@ -1,10 +1,10 @@
-import { ZuploContext, ZuploRequest } from "@zuplo/runtime";
+import { environment, ZuploContext, ZuploRequest } from "@zuplo/runtime";
 
 // Run after API Key Authentication and before the upstream URL Rewrite handler.
-export default async function customerIdentity(request: ZuploRequest, context: ZuploContext) {
+export default async function customerIdentity(request: ZuploRequest, _context: ZuploContext) {
   const subject = request.user?.sub;
-  const secret = context.env.GATEWAY_SECRET;
-  const staff = new Set((context.env.STAFF_SUBJECTS || "").split(",").map((s: string) => s.trim()).filter(Boolean));
+  const secret = environment.GATEWAY_SECRET;
+  const staff = new Set((environment.STAFF_SUBJECTS || "").split(",").map((s: string) => s.trim()).filter(Boolean));
   if (!subject || !secret || staff.has(subject)) {
     return new Response("Customer API key required", { status: 403 });
   }
@@ -14,4 +14,3 @@ export default async function customerIdentity(request: ZuploRequest, context: Z
   request.headers.set("x-consumer-role", "customer");
   return request;
 }
-

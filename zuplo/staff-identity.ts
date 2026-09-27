@@ -1,10 +1,10 @@
-import { ZuploContext, ZuploRequest } from "@zuplo/runtime";
+import { environment, ZuploContext, ZuploRequest } from "@zuplo/runtime";
 
 // Keep STAFF_SUBJECTS provider-controlled; never let portal users edit it.
-export default async function staffIdentity(request: ZuploRequest, context: ZuploContext) {
+export default async function staffIdentity(request: ZuploRequest, _context: ZuploContext) {
   const subject = request.user?.sub;
-  const secret = context.env.GATEWAY_SECRET;
-  const staff = new Set((context.env.STAFF_SUBJECTS || "").split(",").map((s: string) => s.trim()).filter(Boolean));
+  const secret = environment.GATEWAY_SECRET;
+  const staff = new Set((environment.STAFF_SUBJECTS || "").split(",").map((s: string) => s.trim()).filter(Boolean));
   if (!subject || !secret || !staff.has(subject)) {
     return new Response("Staff API key required", { status: 403 });
   }
@@ -13,4 +13,3 @@ export default async function staffIdentity(request: ZuploRequest, context: Zupl
   request.headers.set("x-consumer-role", "staff");
   return request;
 }
-
