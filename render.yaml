@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: order-api-pilot
+    runtime: python
+    plan: free
+    buildCommand: pip install .
+    startCommand: alembic upgrade head && python -m scripts.seed_products && uvicorn order_api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: order-api-pilot-db
+          property: connectionString
+      - key: GATEWAY_SECRET
+        sync: false
+databases:
+  - name: order-api-pilot-db
+    plan: free
